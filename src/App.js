@@ -1,58 +1,56 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+import axios from 'axios'
 import './App.css';
+import './Header.js'
+//import Body from './Body.js'
+import Header from "./Header";
 
 class App extends Component {
-
-    constructor(props) {
-        super(props);
-        this.state = {data: ""};
-        this.state_2 = {message: []};
-        this.onSubmit = this.handleSubmit.bind(this);
+    constructor() {
+        super();
+        this.state = { student: {} };
+        this.onSubmit = this.addDatabase.bind(this);
     }
-
-    componentDidMount() {
-        fetch('/todo/1')
-            .then((response) => response.json())
-            .then((responseJson) =>{
-                this.setState({
-                    message: responseJson.data
-                });
+    componentDidMount(){
+        this.getDatabase();
+    }
+    getDatabase = () => {
+        axios.get('http://localhost:4000/getDatabase')
+            .then(res => {
+                const student = res.data;
+                this.setState({ student });
             })
     }
 
-    handleSubmit(e){
+    addDatabase = (e) => {
         e.preventDefault();
         const self = this;
-        // On submit of the form, send a POST request with the data to the server.
-        fetch('/todo/meterla',{
+        fetch('http://localhost:4000/add', {
             method: 'POST',
-            body:{
-                task: self.refs.task.value
+            data: {
+                Name: self.refs.Name,
+                Faculty: self.refs.Faculty
             }
         })
-            .then(function(response){
+            .then(function(response) {
                 return response.json()
-            }).then(function(body){
+            }).then(function(body) {
             console.log(body);
-            alert(self.refs.task.value)
         });
     }
-
+    //renderStudent = ({ID,Name,Faculty})=> <div key={ID}>{ID} {Name} {Faculty}</div>
     render() {
         return (
-            <div className="App">
-                <div className="App-header">
-                    <img src={logo} className="App-logo" alt="logo" />
-                    <h2>Welcome to React</h2>
-                </div>
+            <div>
+                <Header/>
                 <form onSubmit={this.onSubmit}>
-                    <input type="text" placeholder="task" ref="task"/>
-                    <input type="submit"/>
+                    <input type="text" placeholder="Name" ref="name"/>
+                    <input type="text" placeholder="Job" ref="job"/>
+                    <input type="submit" />
                 </form>
-                <p className="App-intro">
-                    Este es el resultado de la consulta = <b>{JSON.stringify(this.state.message)}</b>
-                </p>
+
+                {/*<Body/>*/}
+                {/*<Header/>*/}
             </div>
         );
     }
