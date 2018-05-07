@@ -1,59 +1,131 @@
-import React, { Component } from 'react';
-import axios from 'axios'
+import React, {Component} from 'react';
+import {connect} from 'react-redux';
 import './App.css';
-import './Header.js'
-//import Body from './Body.js'
-import Header from "./Header";
+import Header from './Header.js'
+import {
+    changeUser,
+    fetchUser,
+    createUser,
+    deleteUser,
+    updateUser
+} from './actions';
 
 class App extends Component {
-    constructor() {
-        super();
-        this.state = { student: {} };
-        this.onSubmit = this.addDatabase.bind(this);
-    }
-    componentDidMount(){
-        this.getDatabase();
-    }
-    getDatabase = () => {
-        axios.get('http://localhost:4000/getDatabase')
-            .then(res => {
-                const student = res.data;
-                this.setState({ student });
-            })
+    componentDidMount() {
+        this.props.fetchUser();
     }
 
-    addDatabase = (e) => {
-        e.preventDefault();
-        const self = this;
-        fetch('http://localhost:4000/add', {
-            method: 'POST',
-            data: {
-                Name: self.refs.Name,
-                Faculty: self.refs.Faculty
-            }
+    state = {
+        Name: '',
+        Faculty: '',
+        Year: '',
+        id: '',
+        name: '',
+        faculty: '',
+        year: '',
+    };
+
+    handleChange = (e) => {
+        let name = e.target.name;
+        let value = e.target.value;
+        this.setState({[name]: value});
+
+    }
+    handleSubmit = () => {
+        this.props.createUser(this.state);
+    }
+    handleDelete = (e) => {
+        const {id} = e.target;
+        this.props.deleteUser(id);
+    }
+    handletoEditform = (e) => {
+        const {id} = e.target;
+        var userselect = [];
+        const {userlist} = this.props.users;
+        userlist.map(data => {
+            if (data != null)
+                return userselect.push(data)
         })
-            .then(function(response) {
-                return response.json()
-            }).then(function(body) {
-            console.log(body);
+        userselect = userselect.filter(data => data.id == id)
+        userselect.map(data => {
+            return this.setState({id: data.id, name: data.Name, faculty: data.Faculty, year: data.Year})
         });
-    }
-    //renderStudent = ({ID,Name,Faculty})=> <div key={ID}>{ID} {Name} {Faculty}</div>
-    render() {
-        return (
-            <div>
-                <Header/>
-                <form onSubmit={this.onSubmit}>
-                    <input type="text" placeholder="Name" ref="name"/>
-                    <input type="text" placeholder="Job" ref="job"/>
-                    <input type="submit" />
-                </form>
 
-                {/*<Body/>*/}
-                {/*<Header/>*/}
+    };
+    handleUpdate = (e) => {
+        const {name, faculty, year, id} = this.state;
+
+        const user = {
+            Name: name,
+            Faculty: faculty,
+            Year: year
+        };
+        const uid = id
+        this.props.updateUser(uid, user)
+    }
+
+    render() {
+        const {userlist} = this.props.users;
+        const {Name, Faculty, Year, name, faculty, year} = this.state;
+        const {
+            handleSubmit,
+            handleChange,
+            handleDelete,
+            handletoEditform,
+            handleUpdate
+        } = this;
+        return (
+            <div className="App">
+                <Header/>
+                <Tester Name={Name} Faculty={Faculty} Year={Year}/>
+                <br/>
+                <h1>User in system</h1>
+                <ul>
+                    {
+                        userlist.map(data => {
+                            if (data != null) {
+                                return <li
+                                    key={data.id}>{"ID:" + data.id + " Name:" + data.Name + " " + data.Faculty + " Year: " + data.Year}
+                                    <button id={data.id} onClick={handletoEditform}>Edit</button>
+                                    <button id={data.id} onClick={handleDelete}>Delete</button>
+                                </li>
+                            }
+                        })
+                    }
+                </ul>
+                <h1>ADD USER</h1>
+                <label htmlFor="">Name</label>
+                <input type="text" name="Name" onChange={handleChange} value={Name}/>
+                <label htmlFor="">Faculty</label>
+                <input type="text" name="Faculty" onChange={handleChange} value={Faculty}/>
+                <label htmlFor="">Year</label>
+                <input type="text" name="Year" onChange={handleChange} value={Year}/>
+                <button onClick={handleSubmit}>Submit</button>
+                <h1>Edit USER</h1>
+                <label htmlFor="">Name</label>
+                <input type="text" name="name" onChange={handleChange} value={name}/>
+                <label htmlFor="">Faculty</label>
+                <input type="text" name="faculty" onChange={handleChange} value={faculty}/>
+                <label htmlFor="">Year</label>
+                <input type="text" name="year" onChange={handleChange} value={year}/>
+                <button onClick={handleUpdate}>Update</button>
             </div>
         );
     }
 }
 
-export default App;
+const Tester = (props) => {
+    const {Name, Faculty, Year} = props;
+    return (
+        <div>
+            <h1>Helloworld {Name + " " + Faculty + " " +Year}</h1>
+        </div>
+    )
+}
+
+const mapStateToProps = ({users}) => {
+    return {
+        users,
+    }
+}
+export default connect(mapStateToProps, {changeUser, fetchUser, createUser, deleteUser, updateUser})(App);

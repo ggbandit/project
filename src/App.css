@@ -1,6 +1,8 @@
 .nameTour {
   text-align: center;
   color: white;
+  margin-top: 60px;
+  font-size: 70px;
 }
 
 .b1 {
@@ -22,10 +24,10 @@
 
 .App-header {
   background: url("https://metrouk2.files.wordpress.com/2016/12/gettyimages-543082289.jpg?w=964&h=642&crop=1");
-  height: 150px;
   background-repeat: no-repeat;
-  background-size: 100% 150%;
-  padding-top: 20px;
+    height: 949px;
+  background-size: cover;
+
 }
 
 ul {
@@ -101,4 +103,8 @@ nav.view{
 }
 body {
   background: lightblue;
+}
+
+.center {
+    text-align: center;
 }
